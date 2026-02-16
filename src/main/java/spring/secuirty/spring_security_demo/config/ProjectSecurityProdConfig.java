@@ -16,31 +16,23 @@ import spring.secuirty.spring_security_demo.exceptionhandling.CustomBasicAuthent
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
-@Profile("!prod")
-public class ProjectSecurityConfig {
+@Profile("prod")
+public class ProjectSecurityProdConfig {
 
     @Bean
-    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) {
-        //if we want to redirect a user to more meaning page if session out happens
+    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
+        //below line 25 will control the session if expired as well also manages the concurrent session
         http.sessionManagement(smc -> smc.invalidSessionUrl("/invalidSession").maximumSessions(1).maxSessionsPreventsLogin(true))
-                .redirectToHttps((https) -> https.disable())
+        .redirectToHttps(https -> https.requestMatchers(AnyRequestMatcher.INSTANCE)) //only allows https
                 .csrf(csrfConfig -> csrfConfig.disable())
                 .authorizeHttpRequests((requests) -> requests
                         .requestMatchers("/myAccount", "/myBalance", "/myLoans", "/myCards").authenticated()
-                        .requestMatchers("/notices", "/contact", "/error", "/register","/invalidSession").permitAll());
+                        .requestMatchers("/notices", "/contact", "/error", "/register").permitAll());
         http.formLogin(withDefaults());
-        //http.httpBasic(Customizer.withDefaults());
-        http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
-        // it will handle exception globally
-        // http.exceptionHandling(ehc -> ehc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        http.httpBasic(ehc -> ehc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
         http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
         return http.build();
     }
-
-//    @Bean is for default implementation
-//    public UserDetailsService userDetailsService(DataSource dataSource) {
-//        return new JdbcUserDetailsManager(dataSource); //responsible to create a user
-//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -48,9 +40,7 @@ public class ProjectSecurityConfig {
     }
 
     /**
-     * this checks if password is compromised or not meaning if password is strong or not
-     * this is available from spring security 6.3
-     *
+     * From Spring Security 6.3 version
      * @return
      */
     @Bean
