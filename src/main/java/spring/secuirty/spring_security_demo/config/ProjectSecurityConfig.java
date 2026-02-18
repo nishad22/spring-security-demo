@@ -37,11 +37,6 @@ public class ProjectSecurityConfig {
         return http.build();
     }
 
-//    @Bean is for default implementation
-//    public UserDetailsService userDetailsService(DataSource dataSource) {
-//        return new JdbcUserDetailsManager(dataSource); //responsible to create a user
-//    }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
