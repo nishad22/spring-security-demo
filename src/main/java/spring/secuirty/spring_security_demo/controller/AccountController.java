@@ -1,13 +1,25 @@
 package spring.secuirty.spring_security_demo.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import spring.secuirty.spring_security_demo.model.Accounts;
+import spring.secuirty.spring_security_demo.repo.AccountsRepository;
 
 @RestController
+@RequiredArgsConstructor
 public class AccountController {
 
+    private final AccountsRepository accountsRepository;
+
     @GetMapping("/myAccount")
-    public String getAccountDetails() {
-        return "Here are the account details from the DB";
+    public Accounts getAccountDetails(@RequestParam long id) {
+        Accounts accounts = accountsRepository.findByCustomerId(id);
+        if (accounts != null) {
+            return accounts;
+        } else {
+            return null;
+        }
     }
 }

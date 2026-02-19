@@ -3,12 +3,16 @@ package spring.secuirty.spring_security_demo.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import spring.secuirty.spring_security_demo.CustomerRepository;
+import spring.secuirty.spring_security_demo.repo.CustomerRepository;
 import spring.secuirty.spring_security_demo.model.Customer;
+
+import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -36,6 +40,18 @@ public class UserController {
                     .body("An exception ocurred: "+ exception.getMessage());
         }
 
+    }
+
+    /**
+     * It will invoke automatically, in case if UI application sending
+     * the user credential inside Authorization header format of HTTP basic
+     * @param authentication
+     * @return
+     */
+    @RequestMapping("/user")
+    public Customer getUserDetailsAfterLogin(Authentication authentication) {
+        Optional<Customer> optionalCustomer = customerRepository.findByEmail(authentication.getName());
+        return optionalCustomer.orElse(null);
     }
 
 }
