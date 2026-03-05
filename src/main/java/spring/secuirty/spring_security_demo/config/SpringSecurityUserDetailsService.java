@@ -12,6 +12,7 @@ import spring.secuirty.spring_security_demo.repo.CustomerRepository;
 import spring.secuirty.spring_security_demo.model.Customer;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -23,7 +24,8 @@ public class SpringSecurityUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Customer customer = customerRepository.findByEmail(username).orElseThrow(() ->
                 new UsernameNotFoundException("User details not found for the user: "+username));
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getRole()));
+        List<GrantedAuthority> authorities = customer.getAuthorities().stream().map(authority -> new SimpleGrantedAuthority(authority.getName())).collect(Collectors.toList());
+       // List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(customer.getAuthorities()));
         return new User(customer.getEmail(), customer.getPwd(),authorities);
     }
 }
