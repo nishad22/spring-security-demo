@@ -20,6 +20,9 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import spring.secuirty.spring_security_demo.exceptionhandling.CustomAccessDeniedHandler;
 import spring.secuirty.spring_security_demo.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import spring.secuirty.spring_security_demo.filter.CsrfCookieFilter;
+import spring.secuirty.spring_security_demo.filter.CustomFilterAddFilterAt;
+import spring.secuirty.spring_security_demo.filter.CustomLoggingFilter;
+import spring.secuirty.spring_security_demo.filter.RequestValidationBeforeFilter;
 
 import java.util.Collections;
 
@@ -55,11 +58,10 @@ public class ProjectSecurityConfig {
                 .csrf(csrfConfig -> csrfConfig.csrfTokenRequestHandler(csrfTokenRequestAttributeHandler)
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse()))
                 .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+                .addFilterBefore(new RequestValidationBeforeFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(new CustomLoggingFilter(), BasicAuthenticationFilter.class)
+                .addFilterAt(new CustomFilterAddFilterAt(), BasicAuthenticationFilter.class)
                 .authorizeHttpRequests((requests) -> requests
-//                        .requestMatchers("/myAccount").hasAuthority("VIEWACCOUNT")
-//                        .requestMatchers("/myBalance").hasAuthority("VIEWBALANCE")
-//                        .requestMatchers("/myLoans").hasAuthority("VIEWLOANS")
-//                        .requestMatchers("/myCards").hasAuthority("VIEWCARDS")
                         /**
                             hasRole() has ROLE_ as prefix
                          */
